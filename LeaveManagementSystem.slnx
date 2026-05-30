@@ -3,6 +3,7 @@
     <Project Path="src/ApiGateway/ApiGateway.csproj" />
     <Project Path="src/LeaveService/LeaveService.csproj" />
     <Project Path="src/NotificationService/NotificationService.csproj" />
+    <Project Path="src/Shared/Shared.csproj" />
     <Project Path="src/UserService/UserService.csproj" />
   </Folder>
 </Solution>
