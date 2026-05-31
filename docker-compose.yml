@@ -1,0 +1,232 @@
+
+services:
+
+  # ── Infrastructure ──────────────────────────────────────
+
+  userservice-db:
+    image: postgres:16
+    container_name: userservice-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: userservice_db
+    ports:
+      - "5431:5432"
+    volumes:
+      - userservice-data:/var/lib/postgresql/data
+    networks:
+      - lms-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  leaveservice-db:
+    image: postgres:16
+    container_name: leaveservice-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: leaveservice_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - leaveservice-data:/var/lib/postgresql/data
+    networks:
+      - lms-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  notificationservice-db:
+    image: postgres:16
+    container_name: notificationservice-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: notificationservice_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - notificationservice-data:/var/lib/postgresql/data
+    networks:
+      - lms-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - lms-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  consul:
+    image: consul:1.15
+    container_name: consul
+    ports:
+      - "9500:8500"
+    networks:
+      - lms-network
+    healthcheck:
+      test: ["CMD", "consul", "agent", "-check"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+    networks:
+      - lms-network
+
+  # ── Services ─────────────────────────────────────────────
+
+  user-service:
+    image: b1n1l/lms-user-service:latest
+    container_name: user-service
+    ports:
+      - "5001:5001"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=userservice-db;Port=5432;Database=userservice_db;Username=postgres;Password=postgres
+      - Jwt__Secret=ThisIsAVeryLongSecretKeyForNAGP2026Assignment!
+      - Jwt__Issuer=LeaveManagementSystem
+      - Jwt__Audience=LeaveManagementSystem
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
+      - RabbitMQ__UserCreatedQueue=user-created
+      - Consul__Host=http://consul:8500
+      - Consul__ServiceName=user-service
+      - Consul__ServicePort=5001
+      - Consul__HealthCheckHost=user-service
+      - Jaeger__Endpoint=http://jaeger:4317
+    depends_on:
+      userservice-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      consul:
+        condition: service_started
+    networks:
+      - lms-network
+
+  leave-service:
+    image: b1n1l/lms-leave-service:latest
+    container_name: leave-service
+    ports:
+      - "5002:5002"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=leaveservice-db;Port=5432;Database=leaveservice_db;Username=postgres;Password=postgres
+      - Jwt__Secret=ThisIsAVeryLongSecretKeyForNAGP2026Assignment!
+      - Jwt__Issuer=LeaveManagementSystem
+      - Jwt__Audience=LeaveManagementSystem
+      - UserService__BaseUrl=http://user-service:5001
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
+      - RabbitMQ__QueueName=leave-notifications
+      - RabbitMQ__UserCreatedQueue=user-created
+      - Consul__Host=http://consul:8500
+      - Consul__ServiceName=leave-service
+      - Consul__ServicePort=5002
+      - Consul__HealthCheckHost=leave-service
+      - Jaeger__Endpoint=http://jaeger:4317
+    depends_on:
+      leaveservice-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      consul:
+        condition: service_started
+      user-service:
+        condition: service_started
+    networks:
+      - lms-network
+
+  notification-service:
+    image: b1n1l/lms-notification-service:latest
+    container_name: notification-service
+    ports:
+      - "5003:5003"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - Jwt__Secret=ThisIsAVeryLongSecretKeyForNAGP2026Assignment!
+      - Jwt__Issuer=LeaveManagementSystem
+      - Jwt__Audience=LeaveManagementSystem
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
+      - RabbitMQ__QueueName=leave-notifications
+      - Consul__Host=http://consul:8500
+      - Consul__ServiceName=notification-service
+      - Consul__ServicePort=5003
+      - Consul__HealthCheckHost=notification-service
+      - Jaeger__Endpoint=http://jaeger:4317
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      consul:
+        condition: service_started
+    networks:
+      - lms-network
+
+  api-gateway:
+    image: b1n1l/lms-api-gateway:latest
+    container_name: api-gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - Jwt__Secret=ThisIsAVeryLongSecretKeyForNAGP2026Assignment!
+      - Jwt__Issuer=LeaveManagementSystem
+      - Jwt__Audience=LeaveManagementSystem
+      - Consul__Host=http://consul:8500
+      - Consul__ServiceName=api-gateway
+      - Consul__ServicePort=5000
+      - Consul__HealthCheckHost=api-gateway
+      - Jaeger__Endpoint=http://jaeger:4317
+    depends_on:
+      consul:
+        condition: service_started
+      user-service:
+        condition: service_started
+      leave-service:
+        condition: service_started
+      notification-service:
+        condition: service_started
+    networks:
+      - lms-network
+
+# ── Volumes ───────────────────────────────────────────────
+volumes:
+  userservice-data:
+  leaveservice-data:
+  notificationservice-data:
+
+# ── Networks ──────────────────────────────────────────────
+networks:
+  lms-network:
+    driver: bridge

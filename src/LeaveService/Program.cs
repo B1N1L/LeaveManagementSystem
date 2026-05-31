@@ -14,6 +14,16 @@ using OpenTelemetry.Instrumentation.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.UseUrls("http://0.0.0.0:5002");
+
+
+// Load Docker-specific config when running in Docker
+var environment = builder.Environment.EnvironmentName;
+builder.Configuration
+    .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
+
+
+
 // ── Database ──────────────────────────────────────────────
 builder.Services.AddDbContext<LeaveDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -130,6 +140,8 @@ app.UseExceptionHandler(errorApp =>
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 
 // ── Health Check Endpoint ─────────────────────────────────
@@ -154,6 +166,5 @@ app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks
 
 app.MapControllers();
 
-app.Urls.Add("http://localhost:5002");
 
 app.Run();

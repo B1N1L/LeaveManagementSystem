@@ -1,0 +1,34 @@
+openapi: 3.0.4
+info:
+  title: NotificationService
+  version: '1.0'
+paths:
+  /api/Notification:
+    get:
+      tags:
+      - Notification
+      parameters:
+      - name: eventType
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+  /api/Notification/employee/{employeeId}:
+    get:
+      tags:
+      - Notification
+      parameters:
+      - name: employeeId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: OK
+components: {}
+tags:
+- name: Notification

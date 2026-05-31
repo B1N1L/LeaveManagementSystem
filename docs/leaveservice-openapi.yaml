@@ -1,0 +1,164 @@
+openapi: 3.0.4
+info:
+  title: LeaveService
+  version: '1.0'
+paths:
+  /api/Leave/balance:
+    get:
+      tags:
+      - Leave
+      responses:
+        '200':
+          description: OK
+  /api/Leave/apply:
+    post:
+      tags:
+      - Leave
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplyLeaveDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/ApplyLeaveDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ApplyLeaveDto'
+      responses:
+        '200':
+          description: OK
+  /api/Leave/history:
+    get:
+      tags:
+      - Leave
+      parameters:
+      - name: status
+        in: query
+        schema:
+          type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: pageSize
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      responses:
+        '200':
+          description: OK
+  /api/Leave/{id}/cancel:
+    patch:
+      tags:
+      - Leave
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: OK
+  /api/Leave/team:
+    get:
+      tags:
+      - Leave
+      parameters:
+      - name: Status
+        in: query
+        schema:
+          type: string
+      - name: EmployeeId
+        in: query
+        schema:
+          type: integer
+          format: int32
+      - name: FromDate
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: ToDate
+        in: query
+        schema:
+          type: string
+          format: date-time
+      responses:
+        '200':
+          description: OK
+  /api/Leave/{id}/action:
+    patch:
+      tags:
+      - Leave
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActOnLeaveDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/ActOnLeaveDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ActOnLeaveDto'
+      responses:
+        '200':
+          description: OK
+  /api/Leave/team/balance/{employeeId}:
+    get:
+      tags:
+      - Leave
+      parameters:
+      - name: employeeId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: OK
+components:
+  schemas:
+    ActOnLeaveDto:
+      type: object
+      properties:
+        action:
+          type: string
+          nullable: true
+        rejectionReason:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ApplyLeaveDto:
+      type: object
+      properties:
+        leaveType:
+          type: string
+          nullable: true
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        reason:
+          type: string
+          nullable: true
+      additionalProperties: false
+tags:
+- name: Leave

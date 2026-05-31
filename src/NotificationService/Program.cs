@@ -9,6 +9,15 @@ using Shared.Telemetry;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.UseUrls("http://0.0.0.0:5003");
+
+// Load Docker-specific config when running in Docker
+var environment = builder.Environment.EnvironmentName;
+builder.Configuration
+    .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
+
+
+
 // ── JWT Authentication ────────────────────────────────────
 var jwtSecret = builder.Configuration["Jwt:Secret"]!;
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -80,7 +89,8 @@ app.UseExceptionHandler(errorApp =>
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseSwagger();
+app.UseSwaggerUI();
 
 
 // ── Health Check Endpoint ─────────────────────────────────
@@ -104,7 +114,5 @@ app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks
 });
 
 app.MapControllers();
-
-app.Urls.Add("http://localhost:5003");
 
 app.Run();

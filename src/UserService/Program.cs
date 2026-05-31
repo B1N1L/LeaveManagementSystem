@@ -1,4 +1,3 @@
-using Consul;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -13,6 +12,15 @@ using Shared.Telemetry;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.UseUrls("http://0.0.0.0:5001");
+
+// Load Docker-specific config when running in Docker
+var environment = builder.Environment.EnvironmentName;
+builder.Configuration
+    .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
+
+
 
 // ── Database ──────────────────────────────────────────────
 builder.Services.AddDbContext<UserDbContext>(options =>
@@ -49,7 +57,7 @@ builder.Services.AddHealthChecks()
         tags: new[] { "db", "ready" });
 
 // ── App Services ──────────────────────────────────────────
-builder.Services.AddSingleton<UserCreatedPublisher>();
+
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddControllers();
@@ -99,6 +107,8 @@ app.UseExceptionHandler(errorApp =>
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 // ── Health Check Endpoint ─────────────────────────────────
 app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
@@ -122,6 +132,5 @@ app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks
 
 app.MapControllers();
 
-app.Urls.Add("http://localhost:5001");
 
 app.Run();

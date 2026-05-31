@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="docker-compose.yml" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/ApiGateway/ApiGateway.csproj" />
     <Project Path="src/LeaveService/LeaveService.csproj" />

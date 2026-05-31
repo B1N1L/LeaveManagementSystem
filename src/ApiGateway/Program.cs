@@ -12,10 +12,18 @@ using Shared.Telemetry;
 var builder = WebApplication.CreateBuilder(args);
 
 // ── Set Port ──────────────────────────────────────────────
-builder.WebHost.UseUrls("http://localhost:5000");
+builder.WebHost.UseUrls("http://0.0.0.0:5000");
 
-// ── Load Ocelot Config ────────────────────────────────────
-builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
+// Get environment name from builder
+var environment = builder.Environment.EnvironmentName;
+
+
+// Load environment-specific Ocelot config
+builder.Configuration
+    .AddJsonFile("ocelot.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"ocelot.{environment}.json", optional: true, reloadOnChange: true);
+
+
 
 // ── JWT Authentication ────────────────────────────────────
 var jwtSecret = builder.Configuration["Jwt:Secret"]!;
