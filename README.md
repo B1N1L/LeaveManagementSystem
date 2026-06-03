@@ -5,19 +5,19 @@ A microservices-based Leave Management System built with .NET 10, demonstrating 
 ### Services
 | Service | Port | Responsibility |
 
-| API Gateway | 5000 | Single entry point, JWT validation, request routing |
-| User Service | 5001 | User management, authentication, JWT generation |
-| Leave Service | 5002 | Leave balance, apply, approve/reject, history |
+| API Gateway | 5000 | Single entry point, JWT validation, request routing |  
+| User Service | 5001 | User management, authentication, JWT generation |  
+| Leave Service | 5002 | Leave balance, apply, approve/reject, history |  
 | Notification Service | 5003 | Async notification consumption and logging |
 
 ### Infrastructure
 | Component | Port | Purpose |
 
-| PostgreSQL (Users) | 5431 | User Service database |
-| PostgreSQL (Leaves) | 5432 | Leave Service database |
-| PostgreSQL (Notifications) | 5433 | Notification Service database |
-| RabbitMQ | 5672 | Async messaging between services |
-| Consul | 9500 | Service discovery and health checking |
+| PostgreSQL (Users) | 5431 | User Service database |  
+| PostgreSQL (Leaves) | 5432 | Leave Service database |  
+| PostgreSQL (Notifications) | 5433 | Notification Service database |  
+| RabbitMQ | 5672 | Async messaging between services |  
+| Consul | 9500 | Service discovery and health checking |  
 | Jaeger | 16686 | Distributed tracing |
 
 
@@ -38,10 +38,10 @@ cd LeaveManagementSystem
 
 | Service | Image |
 
-| User Service | `b1n1l/lms-user-service:latest` |
-| Leave Service | `b1n1l/lms-leave-service:latest` |
-| Notification Service | `b1n1l/lms-notification-service:latest` |
-| API Gateway | `b1n1l/lms-api-gateway:latest` |
+| User Service | `b1n1l/lms-user-service:latest` |  
+| Leave Service | `b1n1l/lms-leave-service:latest` |  
+| Notification Service | `b1n1l/lms-notification-service:latest` |  
+| API Gateway | `b1n1l/lms-api-gateway:latest` |  
 
 Pull images manually:
 ```bash
@@ -59,12 +59,12 @@ docker-compose up --build
 ### 3. Verify All Services are Running
 | URL | Purpose |
 
-| http://localhost:5000/health | API Gateway |
-| http://localhost:5001/health | User Service |
-| http://localhost:5002/health | Leave Service |
-| http://localhost:5003/health | Notification Service |
-| http://localhost:9500 | Consul UI |
-| http://localhost:15672 | RabbitMQ UI (guest/guest) |
+| http://localhost:5000/health | API Gateway |  
+| http://localhost:5001/health | User Service |  
+| http://localhost:5002/health | Leave Service |  
+| http://localhost:5003/health | Notification Service |  
+| http://localhost:9500 | Consul UI |  
+| http://localhost:15672 | RabbitMQ UI (guest/guest) |  
 | http://localhost:16686 | Jaeger UI |
 
 ### 4. Import Postman Collection
@@ -129,20 +129,20 @@ Notification logged + stored in memory
 ### Authentication (via Gateway)
 | Method | Endpoint | Auth | Description |
 
-| POST | /api/auth/login | None | Login and get JWT token |
-| GET | /api/auth/users/{id} | Bearer | Get user by ID |
-| POST | /api/auth/users | Bearer (Manager) | Create new user |
-| GET | /api/auth/users/{managerId}/employees | Bearer (Manager) | Get team members |
+| POST | /api/auth/login | None | Login and get JWT token |  
+| GET | /api/auth/users/{id} | Bearer | Get user by ID |  
+| POST | /api/auth/users | Bearer (Manager) | Create new user |  
+| GET | /api/auth/users/{managerId}/employees | Bearer (Manager) | Get team members |  
 
 ### Leave Management (via Gateway)
 | Method | Endpoint | Auth | Description |
 
-| GET | /api/leave/balance | Bearer (Employee/Manager) | Get own leave balance |
-| POST | /api/leave/apply | Bearer (Employee) | Apply for leave |
-| GET | /api/leave/history | Bearer (Employee) | View leave history |
-| PATCH | /api/leave/{id}/cancel | Bearer (Employee) | Cancel pending leave |
-| GET | /api/leave/team | Bearer (Manager) | View team leave requests |
-| PATCH | /api/leave/{id}/action | Bearer (Manager) | Approve or reject leave |
+| GET | /api/leave/balance | Bearer (Employee/Manager) | Get own leave balance |  
+| POST | /api/leave/apply | Bearer (Employee) | Apply for leave |  
+| GET | /api/leave/history | Bearer (Employee) | View leave history |  
+| PATCH | /api/leave/{id}/cancel | Bearer (Employee) | Cancel pending leave |  
+| GET | /api/leave/team | Bearer (Manager) | View team leave requests |  
+| PATCH | /api/leave/{id}/action | Bearer (Manager) | Approve or reject leave |  
 | GET | /api/leave/team/balance/{employeeId} | Bearer (Manager) | View employee balance |
 
 ### Notifications (via Gateway)
@@ -150,3 +150,12 @@ Notification logged + stored in memory
 
 | GET | /api/notification | Bearer | Get notifications |
 | GET | /api/notification/employee/{id} | Bearer (Manager) | Get employee notifications |
+
+## Future Enhancements
+- **Centralized Logging:** ELK Stack (Elasticsearch, Logstash, Kibana) 
+  integration for log aggregation across all services.
+- **Persistent Notifications:** Replace in-memory notification store with 
+  a PostgreSQL database for notification history persistence across restarts.
+- **Refresh Tokens:** Add refresh token support to extend JWT sessions 
+  without re-login.
+- **Leave Carry Forward:** Support carrying unused leave days to next year.

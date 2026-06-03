@@ -42,8 +42,8 @@ to apply for leaves and managers to approve or reject them. The system is built 
 **Routes:**
 | Upstream | Downstream Service |
 
-| /api/auth/* | User Service |
-| /api/leave/* | Leave Service |
+| /api/auth/* | User Service |  
+| /api/leave/* | Leave Service |  
 | /api/notification/* | Notification Service |
 
 ---
@@ -70,9 +70,9 @@ to apply for leaves and managers to approve or reject them. The system is built 
 ## Pre-seeded Users
 | Name | Email | Password | Role |
 
-| Manas | manas@company.com | NAGP2026 | Manager |
-| Binil | binil@company.com | NAGP2026 | Employee |
-| Rohit | rohit@company.com | NAGP2026 | Employee |
+| Manas | manas@company.com | NAGP2026 | Manager |  
+| Binil | binil@company.com | NAGP2026 | Employee |  
+| Rohit | rohit@company.com | NAGP2026 | Employee |  
 
 ---
 
@@ -100,9 +100,9 @@ to apply for leaves and managers to approve or reject them. The system is built 
 ## Leave Allocation (per year)
 | Type | Days |
 
-| Sick Leave | 10 |
-| Casual Leave | 12 |
-| Privilege Leave | 15 |
+| Sick Leave | 10 |  
+| Casual Leave | 12 |  
+| Privilege Leave | 15 |  
 
 ---
 
@@ -129,8 +129,8 @@ Each service owns its own database — true microservices data isolation pattern
 
 | Instance | Port | Database |
 
-| userservice-db | 5431 | userservice_db |
-| leaveservice-db | 5432 | leaveservice_db |
+| userservice-db | 5431 | userservice_db |  
+| leaveservice-db | 5432 | leaveservice_db |  
 | notificationservice-db | 5433 | notificationservice_db |
 
 ### 4.2 RabbitMQ (Port 5672)
@@ -138,7 +138,7 @@ Async messaging between services.
 
 | Queue | Publisher | Consumer |
 
-| user-created | User Service | Leave Service |
+| user-created | User Service | Leave Service |  
 | leave-notifications | Leave Service | Notification Service |
 
 ### 4.3 Consul (Port 9500)
@@ -155,11 +155,11 @@ A minimal shared library (`Shared` project) contains infrastructure concerns onl
 
 | Component | Purpose |
 
-| `ConsulRegistrationService` | Registers/deregisters each service with Consul |
-| `ConsulExtensions` | One-liner DI registration for all services |
-| `RabbitMQConnectionHelper` | Shared RabbitMQ connection and channel management |
-| `CircuitBreaker` | Reusable circuit breaker implementation |
-| `ResilientHttpClient` | HTTP client with built-in circuit breaker |
+| `ConsulRegistrationService` | Registers/deregisters each service with Consul |  
+| `ConsulExtensions` | One-liner DI registration for all services |  
+| `RabbitMQConnectionHelper` | Shared RabbitMQ connection and channel management |  
+| `CircuitBreaker` | Reusable circuit breaker implementation |  
+| `ResilientHttpClient` | HTTP client with built-in circuit breaker |  
 | `OpenTelemetryExtensions` | One-liner distributed tracing setup |
 
 Business logic, DTOs, and domain models are intentionally NOT shared — each service owns its own domain.
@@ -170,12 +170,12 @@ Business logic, DTOs, and domain models are intentionally NOT shared — each se
 
 | Concern | Implementation |
 
-| Logging | `ILogger<T>` structured logging throughout all services |
-| Circuit Breaker | Custom implementation in `Shared.Resilience` + Ocelot QoS at gateway |
-| Authentication | JWT Bearer tokens validated at Gateway and individual services |
-| Authorization | Role-based checks in every controller endpoint |
-| Global Exception Handling | `UseExceptionHandler` middleware in all services |
-| Distributed Tracing | OpenTelemetry → Jaeger via OTLP |
+| Logging | `ILogger<T>` structured logging throughout all services |  
+| Circuit Breaker | Custom implementation in `Shared.Resilience` + Ocelot QoS at gateway |  
+| Authentication | JWT Bearer tokens validated at Gateway and individual services |  
+| Authorization | Role-based checks in every controller endpoint |  
+| Global Exception Handling | `UseExceptionHandler` middleware in all services |  
+| Distributed Tracing | OpenTelemetry → Jaeger via OTLP |  
 | Health Checks | `/health` endpoint on all services, used by Consul |
 
 ---
@@ -195,10 +195,30 @@ Business logic, DTOs, and domain models are intentionally NOT shared — each se
 
 | Service | Image |
 
-| User Service | `b1n1l/lms-user-service:latest` |
-| Leave Service | `b1n1l/lms-leave-service:latest` |
-| Notification Service | `b1n1l/lms-notification-service:latest` |
+| User Service | `b1n1l/lms-user-service:latest` |  
+| Leave Service | `b1n1l/lms-leave-service:latest` |  
+| Notification Service | `b1n1l/lms-notification-service:latest` |  
 | API Gateway | `b1n1l/lms-api-gateway:latest` |
+
+---
+
+## 9. Load Balancing
+
+The API Gateway implements Round Robin load balancing for the Leave Service
+using Ocelot's built-in load balancer. Two instances of Leave Service run
+simultaneously, sharing the same PostgreSQL database.
+
+| Instance | Container | Port | 
+|---|---|---| 
+| Leave Service 1 | leave-service | 5002 | 
+| Leave Service 2 | leave-service-2 | 5012 |
+
+Both instances register with Consul under the same service name `leave-service`.
+Ocelot distributes requests between them in Round Robin fashion — each request
+goes to the next instance in sequence.
+
+This demonstrates horizontal scaling of microservices without any changes
+to the client or other services.
 
 ## Design Decisions
 

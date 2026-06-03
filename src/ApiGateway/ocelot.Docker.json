@@ -44,8 +44,15 @@
         {
           "Host": "leave-service",
           "Port": 5002
+        },
+        {
+          "Host": "leave-service-2",
+          "Port": 5002
         }
       ],
+      "LoadBalancerOptions": {
+        "Type": "RoundRobin"
+      },
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
       },

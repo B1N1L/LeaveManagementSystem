@@ -29,8 +29,9 @@ public class ConsulRegistrationService : IHostedLifecycleService
         var servicePort = int.Parse(_configuration["Consul:ServicePort"]!);
         var healthCheckHost = _configuration["Consul:HealthCheckHost"]
             ?? "host.docker.internal";
-        _registrationId = $"{serviceName}-{servicePort}";
-
+        var hostName = System.Net.Dns.GetHostName();
+        _registrationId = $"{serviceName}-{hostName}-{servicePort}";
+        
         var registration = new AgentServiceRegistration
         {
             ID = _registrationId,

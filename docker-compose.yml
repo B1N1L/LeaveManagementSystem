@@ -164,6 +164,41 @@ services:
         condition: service_started
     networks:
       - lms-network
+  
+  leave-service-2:
+    image: b1n1l/lms-leave-service:latest
+    container_name: leave-service-2
+    ports:
+      - "5012:5002"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=leaveservice-db;Port=5432;Database=leaveservice_db;Username=postgres;Password=postgres
+      - Jwt__Secret=ThisIsAVeryLongSecretKeyForNAGP2026Assignment!
+      - Jwt__Issuer=LeaveManagementSystem
+      - Jwt__Audience=LeaveManagementSystem
+      - UserService__BaseUrl=http://user-service:5001
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
+      - RabbitMQ__QueueName=leave-notifications
+      - RabbitMQ__UserCreatedQueue=user-created
+      - Consul__Host=http://consul:8500
+      - Consul__ServiceName=leave-service
+      - Consul__ServicePort=5012
+      - Consul__HealthCheckHost=leave-service-2
+      - Jaeger__Endpoint=http://jaeger:4317
+    depends_on:
+      leaveservice-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      consul:
+        condition: service_started
+      user-service:
+        condition: service_started
+    networks:
+      - lms-network
 
   notification-service:
     image: b1n1l/lms-notification-service:latest

@@ -46,6 +46,9 @@
           "Port": 5002
         }
       ],
+      "LoadBalancerOptions": {
+        "Type": "RoundRobin"
+      },
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
       },

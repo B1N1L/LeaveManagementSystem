@@ -11,27 +11,27 @@ Protected endpoints require `Authorization: Bearer {token}` header.
 ### Authentication (via Gateway)
 | Method | Endpoint | Auth | Description |
 
-| POST | /api/auth/login | None | Login and get JWT token |
-| GET | /api/auth/users/{id} | Bearer | Get user by ID |
-| POST | /api/auth/users | Bearer (Manager) | Create new user |
-| GET | /api/auth/users/{managerId}/employees | Bearer (Manager) | Get team members |
+| POST | /api/auth/login | None | Login and get JWT token |  
+| GET | /api/auth/users/{id} | Bearer | Get user by ID |  
+| POST | /api/auth/users | Bearer (Manager) | Create new user |  
+| GET | /api/auth/users/{managerId}/employees | Bearer (Manager) | Get team members |  
 
 ### Leave Management (via Gateway)
 | Method | Endpoint | Auth | Description |
 
-| GET | /api/leave/balance | Bearer (Employee/Manager) | Get own leave balance |
-| POST | /api/leave/apply | Bearer (Employee) | Apply for leave |
-| GET | /api/leave/history | Bearer (Employee) | View leave history |
-| PATCH | /api/leave/{id}/cancel | Bearer (Employee) | Cancel pending leave |
-| GET | /api/leave/team | Bearer (Manager) | View team leave requests |
-| PATCH | /api/leave/{id}/action | Bearer (Manager) | Approve or reject leave |
-| GET | /api/leave/team/balance/{employeeId} | Bearer (Manager) | View employee balance |
+| GET | /api/leave/balance | Bearer (Employee/Manager) | Get own leave balance |  
+| POST | /api/leave/apply | Bearer (Employee) | Apply for leave |  
+| GET | /api/leave/history | Bearer (Employee) | View leave history |  
+| PATCH | /api/leave/{id}/cancel | Bearer (Employee) | Cancel pending leave |  
+| GET | /api/leave/team | Bearer (Manager) | View team leave requests |  
+| PATCH | /api/leave/{id}/action | Bearer (Manager) | Approve or reject leave |  
+| GET | /api/leave/team/balance/{employeeId} | Bearer (Manager) | View employee balance |  
 
 ### Notifications (via Gateway)
 | Method | Endpoint | Auth | Description |
 
-| GET | /api/notification | Bearer | Get notifications |
-| GET | /api/notification/employee/{id} | Bearer (Manager) | Get employee notifications |
+| GET | /api/notification | Bearer | Get notifications |  
+| GET | /api/notification/employee/{id} | Bearer (Manager) | Get employee notifications |  
 
 ## Authentication
 
@@ -434,13 +434,13 @@ Available on all services. No authentication required.
 ## HTTP Status Code Reference
 
 | Code | Meaning | When |
-|---|---|---|
-| 200 | OK | Successful GET, PATCH |
-| 201 | Created | Successful POST (user/leave created) |
-| 400 | Bad Request | Validation failure, business rule violation |
-| 401 | Unauthorized | Missing or invalid JWT token |
-| 403 | Forbidden | Valid token but wrong role |
-| 404 | Not Found | Resource does not exist |
-| 500 | Internal Server Error | Unexpected server error |
-| 502 | Bad Gateway | Gateway cannot reach downstream service |
+
+| 200 | OK | Successful GET, PATCH |  
+| 201 | Created | Successful POST (user/leave created) |  
+| 400 | Bad Request | Validation failure, business rule violation |  
+| 401 | Unauthorized | Missing or invalid JWT token |  
+| 403 | Forbidden | Valid token but wrong role |  
+| 404 | Not Found | Resource does not exist |  
+| 500 | Internal Server Error | Unexpected server error |  
+| 502 | Bad Gateway | Gateway cannot reach downstream service |  
 | 503 | Service Unavailable | Circuit breaker open |

@@ -4,11 +4,11 @@
 ---
 
 ## 1. Communication Overview
-API Gateway ──HTTP──► User Service
-API Gateway ──HTTP──► Leave Service
-API Gateway ──HTTP──► Notification Service
-Leave Service ──HTTP──► User Service
-User Service ──RabbitMQ──► Leave Service
+API Gateway ──HTTP──► User Service  
+API Gateway ──HTTP──► Leave Service  
+API Gateway ──HTTP──► Notification Service  
+Leave Service ──HTTP──► User Service  
+User Service ──RabbitMQ──► Leave Service  
 Leave Service ──RabbitMQ──► Notification Service
 
 ---
@@ -111,10 +111,10 @@ Leave Service ──RabbitMQ──► Notification Service
 All services register with Consul on startup:
 
 | Service | Registration Name | Health Check URL |
-|---|---|---|
-| User Service | user-service | http://user-service:5001/health |
-| Leave Service | leave-service | http://leave-service:5002/health |
-| Notification Service | notification-service | http://notification-service:5003/health |
+
+| User Service | user-service | http://user-service:5001/health |  
+| Leave Service | leave-service | http://leave-service:5002/health |  
+| Notification Service | notification-service | http://notification-service:5003/health |  
 | API Gateway | api-gateway | http://api-gateway:5000/health |
 
 **Registration timing:** Services register AFTER Kestrel is fully started
