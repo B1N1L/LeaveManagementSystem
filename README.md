@@ -159,3 +159,11 @@ Notification logged + stored in memory
 - **Refresh Tokens:** Add refresh token support to extend JWT sessions 
   without re-login.
 - **Leave Carry Forward:** Support carrying unused leave days to next year.
+
+## Video Recording Link
+
+https://drive.google.com/open?id=1otUUS2z57tRHyaLVF6omnDL0FxAlIdnQ&usp=drive_fs
+
+## Source Code Link
+
+https://github.com/B1N1L/LeaveManagementSystem.git
