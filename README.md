@@ -162,7 +162,7 @@ Notification logged + stored in memory
 
 ## Video Recording Link
 
-https://drive.google.com/open?id=1otUUS2z57tRHyaLVF6omnDL0FxAlIdnQ&usp=drive_fs
+https://drive.google.com/file/d/1otUUS2z57tRHyaLVF6omnDL0FxAlIdnQ/view?usp=sharing
 
 ## Source Code Link
 
